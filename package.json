@@ -1,0 +1,26 @@
+{
+  "name": "igme430_project1",
+  "version": "1.0.0",
+  "description": "IGME430 Project1 API Powered App",
+  "main": "./src/server.js",
+	"scripts": {
+	    "start": "node ./src/server.js",
+	    "pretest": "eslint ./src --fix",
+	    "test": "echo \"Tests complete\""
+	  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/eja4296/IGME430_Project1.git"
+  },
+  "author": "Erik Azzarano",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/eja4296/IGME430_Project1/issues"
+  },
+  "homepage": "https://github.com/eja4296/IGME430_Project1#readme",
+  "devDependencies": {
+    "eslint": "^4.17.0",
+    "eslint-config-airbnb": "^16.1.0",
+    "eslint-plugin-import": "^2.8.0"
+  }
+}
