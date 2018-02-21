@@ -1,4 +1,4 @@
-const users = {};
+const reviews = {};
 
 // respond JSON
 const respondJSON = (request, response, status, object) => {
@@ -13,16 +13,16 @@ const respondJSONMeta = (request, response, status) => {
   response.end();
 };
 
-// get users
-const getUsers = (request, response) => {
+// get reviews
+const getReviews = (request, response) => {
   const responseJSON = {
-    users,
+    reviews,
   };
   respondJSON(request, response, 200, responseJSON);
 };
 
-// get users meta
-const getUsersMeta = (request, response) => {
+// get reviews meta
+const getReviewsMeta = (request, response) => {
   respondJSONMeta(request, response, 200);
 };
 
@@ -42,13 +42,13 @@ const notFoundMeta = (request, response) => {
 };
 
 // function to add a user from a POST body
-const addUser = (request, response, body) => {
+const addReview = (request, response, body) => {
   // default message
   const responseJSON = {
-    message: 'Name and age are both required.',
+    message: 'Title and Review are both required.',
   };
 
-  if (!body.name || !body.age) {
+  if (!body.title || !body.review) {
     responseJSON.id = 'missingParams';
     return respondJSON(request, response, 400, responseJSON);
   }
@@ -57,15 +57,21 @@ const addUser = (request, response, body) => {
   let responseCode = 201;
 
   // if user name already exists, switch to a 204 (updated)
-  if (users[body.name]) {
+  if (reviews[body.title]) {
     responseCode = 204;
   } else {
     // otherwise, create an object with that name
-    users[body.name] = {};
+    reviews[body.title] = {};
   }
 
-  users[body.name].name = body.name;
-  users[body.name].age = body.age;
+  reviews[body.title].title = body.title;
+  reviews[body.title].author = body.author;
+  reviews[body.title].year = body.year;
+  reviews[body.title].journal = body.journal;
+  reviews[body.title].volume = body.volume;
+  reviews[body.title].issue = body.issue;
+  reviews[body.title].pages = body.pages;
+  reviews[body.title].review = body.review;
 
   if (responseCode === 201) {
     responseJSON.message = 'Created Successfully';
@@ -78,9 +84,9 @@ const addUser = (request, response, body) => {
 
 // public exports
 module.exports = {
-  getUsers,
-  getUsersMeta,
+  getReviews,
+  getReviewsMeta,
   notFound,
   notFoundMeta,
-  addUser,
+  addReview,
 };

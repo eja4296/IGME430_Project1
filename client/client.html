@@ -1,13 +1,14 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <title>Our simple HTTP server</title>
+  <title>Article Review Creator</title>
   <link rel="stylesheet" type="text/css" href="/style.css">
   
   <script src="https://cdnjs.cloudflare.com/ajax/libs/babel-core/5.8.34/browser.min.js"></script>
   <script type="text/babel">
+
     //function to parse our response
-    const parseJSON = (xhr, content) => {
+    const parseJSON = (xhr, content, bottomContent) => {
       //parse response (obj will be empty in a 204 updated)
       if(xhr.responseType === "HEAD"){
         return;
@@ -17,35 +18,61 @@
       console.dir(obj);
       
       //if message in response, add to screen
+      
       if(obj.message) {
         const p = document.createElement('p');
         p.textContent = `Message: ${obj.message}`;
         content.appendChild(p);
       }
       
-      //if users in response, add to screen
-      if(obj.users) {
-        const userList = document.createElement('p');
-        const users = JSON.stringify(obj.users);
-        userList.textContent = users;
-        content.appendChild(userList);
+      //if reviews in response, add to screen
+      if(obj.reviews) {
+        //const reviewListJSON = document.createElement('p');
+        //const reviews = JSON.stringify(obj.reviews);
+        //reviewListJSON.textContent = reviews;
+        //content.appendChild(reviewListJSON);
+        
+        const keys = Object.keys(obj.reviews);
+        
+        for(let i = 0; i < keys.length; i++){
+          const review = obj.reviews[keys[i]];
+          const newReview = document.createElement('div');
+          const h2 = document.createElement('h2');
+          h2.textContent = `Title: ${review.title}`;
+          newReview.appendChild(h2);
+          const h3 = document.createElement('h3');
+          h3.textContent = `Author: ${review.author}, Year: ${review.year}`;
+          newReview.appendChild(h3);
+          const h4 = document.createElement('h3');
+          h4.textContent = `Journal: ${review.journal}, Volume: ${review.volume}, Issue: ${review.issue}, Pages: ${review.pages}`;
+          newReview.appendChild(h4);
+          const p = document.createElement('p');
+          p.textContent = `Review: ${review.review}`;
+          newReview.appendChild(p);
+          bottomContent.appendChild(newReview);
+        }
       }
     };
-
     // handle response
     const handleResponse = (xhr, parseResponse) => {
       const content = document.querySelector('#content');
+      const bottom = document.querySelector('#bottom');
+      
       
       //check the status code
       switch(xhr.status) {
         case 200: // success
-          content.innerHTML = `<b>Success</b>`;
+          content.innerHTML = `<b>Successfully Retrieved Reviews</b>`;
+          bottom.removeChild(document.querySelector('#bottomContent'));
+          const bottomContent = document.createElement('section');
+          bottomContent.id = "bottomContent";
+          bottom.appendChild(bottomContent);
           break;
         case 201: // created
-          content.innerHTML = '<b>Create</b>';
+          content.innerHTML = '<b>Created Review Added Successfully</b>';
           break;
         case 204: // updated
-          content.innerHTML = '<b>Updated (No Content)</b>';
+          content.innerHTML = '<b>Updated Review Successfully</b>';
           return;
         case 400: // bad request
           content.innerHTML = `<b>Bad Request</b>`;
@@ -57,31 +84,34 @@
           content.innerHTML = `Error code not implemented by client.`;
           break;
       }
-
       // Only parse JSON if it is not a head request
       if(parseResponse) {
-        parseJSON(xhr, content);
+        parseJSON(xhr, content, bottomContent);
       }
     };
-
     //function to send post request
-    const sendPost = (e, nameForm) => {
-      const nameAction = nameForm.getAttribute('action');
-      const nameMethod = nameForm.getAttribute('method');
-      const nameField = nameForm.querySelector('#nameField');
-      const ageField = nameForm.querySelector('#ageField');
+    const sendPost = (e, reviewForm) => {
+      const reviewAction = reviewForm.getAttribute('action');
+      const reviewMethod = reviewForm.getAttribute('method');
+      
+      const titleField = reviewForm.querySelector('#titleField');
+      const authorField = reviewForm.querySelector('#authorField');
+      const yearField = reviewForm.querySelector('#yearField');
+      const journalField = reviewForm.querySelector('#journalField');
+      const volumeField = reviewForm.querySelector('#volumeField');
+      const issueField = reviewForm.querySelector('#issueField');
+      const pagesField = reviewForm.querySelector('#pagesField');
+      const reviewField = reviewForm.querySelector('#reviewField');
       
       const xhr = new XMLHttpRequest();
-
-      xhr.open(nameMethod, nameAction);
+      xhr.open(reviewMethod, reviewAction);
       
       xhr.setRequestHeader('Content-type', 'application/x-www-form-urlencoded');
-
       xhr.setRequestHeader ('Accept', 'application/json');
       
       xhr.onload = () => handleResponse(xhr, true);
       
-      const formData = `name=${nameField.value}&age=${ageField.value}`;
+      const formData = `title=${titleField.value}&author=${authorField.value}&year=${yearField.value}&journal=${journalField.value}&volume=${volumeField.value}&issue=${issueField.value}&pages=${pagesField.value}&review=${reviewField.value}`;
       
       xhr.send(formData);
       
@@ -89,7 +119,6 @@
       e.preventDefault();
       return false;
     };
-
     // function to get user data
     const getData = (e, userForm) => {
       const userAction = userForm.getAttribute('action');
@@ -99,9 +128,7 @@
       const methodField = document.querySelector('#methodSelect').value;
       
       const xhr = new XMLHttpRequest();
-
       xhr.open(methodField, urlField);
-
       xhr.setRequestHeader ('Accept', 'application/json');
       
       xhr.onload = () => handleResponse(xhr);
@@ -120,43 +147,68 @@
       e.preventDefault();
       return false;
     };
-
     const init = () => {
-      const nameForm = document.querySelector('#nameForm');
+      const reviewForm = document.querySelector('#reviewForm');
       const userForm = document.querySelector('#userForm');
       
-      const addUser = (e) => sendPost(e, nameForm);
-      const getUsers = (e) => getData(e, userForm);
+      const addReview = (e) => sendPost(e, reviewForm);
+      const getReviews = (e) => getData(e, userForm);
       
-      nameForm.addEventListener('submit', addUser);
-      userForm.addEventListener('submit', getUsers);
+      reviewForm.addEventListener('submit', addReview);
+      userForm.addEventListener('submit', getReviews);
     };
     window.onload = init;
   </script>
 </head>
 <body>
+  <section id="main">
   <section id="top">
-    <h3>POST Status Code Tests</h3>
-    <form id="nameForm" action="/addUser" method="post">
-      <label for="name">Name: </label>
-      <input id="nameField" type="text" name="name" />
-      <label for="age">Age: </label>
-      <input id="ageField" type="number" name="age" min="0" max="100" step="1"/>
-      <input type="submit" value="Add User" />
+    <h1>Create Article Reviews</h1>
+    <h3>Enter information about an article you have read to help you write your papers later on!</h3>
+    <form id="reviewForm" action="/addReview" method="post">
+      <div id="rightReviewForm">
+        <label for="review">Review: </label>
+        <textarea id="reviewField" rows="33" placeholder="Review of the article..." name="review"></textarea>
+      </div>
+      <div id="leftReviewForm">
+        <label for="title">Title: </label>
+        <input id="titleField" placeholder="e.g. Video Games and Mental Health" type="text" name="title" />
+        <label for="author">Author: </label>
+        <input id="authorField" placeholder="e.g. John Smith" type="text" name="author"/>
+        <label for="year">Year: </label>
+        <input id="yearField" placeholder="e.g. 2012" type="text" name="year"/>
+        <label for="journal">Journal: </label>
+        <input id="journalField" placeholder="e.g. Journal of Cognitive Neuroscience" type="text" name="journal"/>
+        <label for="volume">Volume: </label>
+        <input id="volumeField" placeholder="e.g. 12" type="text" name="volume"/>
+        <label for="issue">Issue: </label>
+        <input id="issueField" placeholder="e.g. 3" type="text" name="issue"/>
+        <label for="pages">Pages: </label>
+        <input id="pagesField" placeholder="e.g. 219-234" type="text" name="pages"/>
+      </div>
+      <input type="submit" value="Add Review" />
     </form>
-    <form id="userForm" action="/getUsers" method="get">
+    <section id="content"></section>
+  </section>
+    
+  <section id="bottom">
+    <h1>Read Article Reviews</h1>
+    <form id="userForm" action="/getReviews" method="get">
       <select id='urlField'>
-        <option value='/getUsers'>/getUsers</option>
-        <option value='/notReal'>/notReal</option>
+        <option value='/getReviews'>/getReviews</option>
       </select>
       <select id="methodSelect">
         <option value="get">GET</option>
         <option value="head">HEAD</option>
       </select>
-      <input type="submit" value="Get User" />
+      <input type="submit" value="Get Reviews" />
     </form>
+    <section id=bottomContent></section>
   </section>
-  <section id="content">
-  </section>
+    <footer>
+        &copy; Erik Azzarano 2018
+    </footer>
+ </section>
+
 </body>
 </html>
