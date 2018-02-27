@@ -45,7 +45,7 @@ const notFoundMeta = (request, response) => {
 const addReview = (request, response, body) => {
   // default message
   const responseJSON = {
-    message: 'Title and Review are both required.',
+    message: 'Title and Review are all required.',
   };
 
   if (!body.title || !body.review) {
@@ -65,7 +65,9 @@ const addReview = (request, response, body) => {
   }
 
   reviews[body.title].title = body.title;
-  reviews[body.title].author = body.author;
+  reviews[body.title].authorFirstName = body.authorFirstName;
+  reviews[body.title].authorMiddleName = body.authorMiddleName;
+  reviews[body.title].authorLastName = body.authorLastName;
   reviews[body.title].year = body.year;
   reviews[body.title].journal = body.journal;
   reviews[body.title].volume = body.volume;

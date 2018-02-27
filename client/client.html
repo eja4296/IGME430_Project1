@@ -3,13 +3,12 @@
 <head>
   <title>Article Review Creator</title>
   <link rel="stylesheet" type="text/css" href="/style.css">
-  
   <script src="https://cdnjs.cloudflare.com/ajax/libs/babel-core/5.8.34/browser.min.js"></script>
   <script type="text/babel">
 
-    //function to parse our response
+    // function to parse the response
     const parseJSON = (xhr, content, bottomContent) => {
-      //parse response (obj will be empty in a 204 updated)
+      // parse response (obj will be empty in a 204 updated)
       if(xhr.responseType === "HEAD"){
         return;
       }
@@ -18,7 +17,6 @@
       console.dir(obj);
       
       //if message in response, add to screen
-      
       if(obj.message) {
         const p = document.createElement('p');
         p.textContent = `Message: ${obj.message}`;
@@ -27,28 +25,44 @@
       
       //if reviews in response, add to screen
       if(obj.reviews) {
-        //const reviewListJSON = document.createElement('p');
-        //const reviews = JSON.stringify(obj.reviews);
-        //reviewListJSON.textContent = reviews;
-        //content.appendChild(reviewListJSON);
-        
         const keys = Object.keys(obj.reviews);
         
         for(let i = 0; i < keys.length; i++){
           const review = obj.reviews[keys[i]];
           const newReview = document.createElement('div');
-          const h2 = document.createElement('h2');
-          h2.textContent = `Title: ${review.title}`;
-          newReview.appendChild(h2);
-          const h3 = document.createElement('h3');
-          h3.textContent = `Author: ${review.author}, Year: ${review.year}`;
-          newReview.appendChild(h3);
-          const h4 = document.createElement('h3');
-          h4.textContent = `Journal: ${review.journal}, Volume: ${review.volume}, Issue: ${review.issue}, Pages: ${review.pages}`;
-          newReview.appendChild(h4);
-          const p = document.createElement('p');
-          p.textContent = `Review: ${review.review}`;
-          newReview.appendChild(p);
+          const p1 = document.createElement('p');
+          p1.innerHTML = `<b>Title:</b> ${review.title}`;
+          newReview.appendChild(p1);
+          
+          const p2 = document.createElement('p');
+          p2.innerHTML = `<b>Author:</b> ${review.authorFirstName} ${review.authorMiddleName}. ${review.authorLastName}, <b>Year:</b> ${review.year}`;
+          newReview.appendChild(p2);
+          
+          const p3 = document.createElement('p');
+          p3.innerHTML = `<b>Journal:</b> ${review.journal}, <b>Volume:</b> ${review.volume}, <b>Issue:</b> ${review.issue}, <b>Pages:</b> ${review.pages}`;
+          newReview.appendChild(p3);
+         
+          const p4 = document.createElement('p');
+          p4.innerHTML = `<b>Review:</b> ${review.review}`;
+          newReview.appendChild(p4);
+          
+          // Citation
+          const citation = document.createElement('p');
+          citation.id = "citation";
+          if(review.title && review.authorFirstName && review.authorLastName && review.journal && review.volume && review.issue && review.pages){
+            const firstInitial = review.authorFirstName;
+            citation.innerHTML = `<b>APA Citation:</b> ${review.authorLastName}, ${firstInitial.charAt(0)}.`;
+            newReview.appendChild(citation);
+            if(review.authorMiddleName){
+              citation.innerHTML += ` ${review.authorMiddleName}.`
+            }
+            citation.innerHTML += ` (${review.year}). ${review.title}. <i>${review.journal}, ${review.volume}</i>(${review.issue}), ${review.pages}`;
+          }else{
+            citation.innerHTML = "<b>APA Citation:</b> More information needed for accurate citation.";
+            newReview.appendChild(citation);
+          }
+          
+          // Append all added content
           bottomContent.appendChild(newReview);
         }
       }
@@ -95,7 +109,9 @@
       const reviewMethod = reviewForm.getAttribute('method');
       
       const titleField = reviewForm.querySelector('#titleField');
-      const authorField = reviewForm.querySelector('#authorField');
+      const authorFirstField = reviewForm.querySelector('#authorFirstField');
+      const authorMiddleField = reviewForm.querySelector('#authorMiddleField');
+      const authorLastField = reviewForm.querySelector('#authorLastField');
       const yearField = reviewForm.querySelector('#yearField');
       const journalField = reviewForm.querySelector('#journalField');
       const volumeField = reviewForm.querySelector('#volumeField');
@@ -111,7 +127,7 @@
       
       xhr.onload = () => handleResponse(xhr, true);
       
-      const formData = `title=${titleField.value}&author=${authorField.value}&year=${yearField.value}&journal=${journalField.value}&volume=${volumeField.value}&issue=${issueField.value}&pages=${pagesField.value}&review=${reviewField.value}`;
+      const formData = `title=${titleField.value}&authorFirstName=${authorFirstField.value}&authorMiddleName=${authorMiddleField.value}&authorLastName=${authorLastField.value}&year=${yearField.value}&journal=${journalField.value}&volume=${volumeField.value}&issue=${issueField.value}&pages=${pagesField.value}&review=${reviewField.value}`;
       
       xhr.send(formData);
       
@@ -164,17 +180,18 @@
   <section id="main">
   <section id="top">
     <h1>Create Article Reviews</h1>
-    <h3>Enter information about an article you have read to help you write your papers later on!</h3>
+    <h3>Enter information about an article you read to help you write your papers later on!</h3>
+    <p id="required">*Required Field</p>
     <form id="reviewForm" action="/addReview" method="post">
-      <div id="rightReviewForm">
-        <label for="review">Review: </label>
-        <textarea id="reviewField" rows="33" placeholder="Review of the article..." name="review"></textarea>
-      </div>
       <div id="leftReviewForm">
-        <label for="title">Title: </label>
+        <label for="title">*Title: </label>
         <input id="titleField" placeholder="e.g. Video Games and Mental Health" type="text" name="title" />
-        <label for="author">Author: </label>
-        <input id="authorField" placeholder="e.g. John Smith" type="text" name="author"/>
+        <label for="authorFirstName">Author: </label>
+        <div id="authorName">
+          <input id="authorFirstField" placeholder="First Name" type="text" name="authorFirstName"/>
+          <input id="authorMiddleField" placeholder="Middle Initial" type="text" name="authorMiddleName"/>
+          <input id="authorLastField" placeholder="Last Name" type="text" name="authorLastName"/>
+        </div>
         <label for="year">Year: </label>
         <input id="yearField" placeholder="e.g. 2012" type="text" name="year"/>
         <label for="journal">Journal: </label>
@@ -186,7 +203,13 @@
         <label for="pages">Pages: </label>
         <input id="pagesField" placeholder="e.g. 219-234" type="text" name="pages"/>
       </div>
-      <input type="submit" value="Add Review" />
+      <div id="rightReviewForm">
+        <label for="review">*Review: </label>
+        <textarea id="reviewField" rows="25" placeholder="Review of the article..." name="review"></textarea>
+      </div>
+        <div id="addReviewButton">
+        <input type="submit" value="Add Review" />
+        </div>
     </form>
     <section id="content"></section>
   </section>
@@ -206,7 +229,7 @@
     <section id=bottomContent></section>
   </section>
     <footer>
-        &copy; Erik Azzarano 2018
+        &copy; 2018 Erik Azzarano
     </footer>
  </section>
 
