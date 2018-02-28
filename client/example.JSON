@@ -1,0 +1,12 @@
+{  
+      "title":"Artificial intelligence framework for simulating clinical decision-making: A Markov decision process approach",
+      "authorFirstName":"Casey",
+      "authorMiddleName":"C",
+      "authorLastName":"Bennett",
+      "year":"2013",
+      "journal":"Artificial Intelligence in Medicine",
+      "volume":"57",
+      "issue":"1",
+      "pages":"9-19",
+      "review":"The Problem:\nThere are several issues within the current healthcare system in regards to: efficiency and accuracy of diagnosis, making on-the-fly alterations to treatments as the patient's symptoms change, cost of other systems used to aid in diagnoses, and cost of training health care professional both originally, and as new research comes along, among other things. The goals discussed in this article revolve around developing an AI decision making system that solves, or at least improves, many of these issues.\n \nThe Goal:\nThe main hope of the researchers was to create an AI simulation for diagnosing and treating patients based on the culmination of current knowledge, as well as from up to date research as new knowledge is available. The latter part of that statement is critical given that typically the time between completion of research as its adopted practice in the clinical world is 13-17 years. The other important part of the system is to accurately diagnose a patient, and then provide a treatment plan based not only on the patient’s current health, but the potential for changes as a disease or chronic health problem progresses. A lot of human decision making in healthcare is based on intuition at times, so the AI system would hope to eliminate uncertainty and other possible variables.\n \nThe Results:\nThe researchers built a system based on the Markov decision processes, which is a technique that excels in sequential decisions making, specifically in uncertain and changing environments. Ultimately, this system outperformed and was more optimized than current, simpler systems used in healthcare practices. It performed well in situations where there was missing information when making decisions, which is typical in the real world, as not every case will show every sign associated with a health issue. Statistically, the system showed a potential to outperform human decision making, in terms of successfully diagnosing and treating patients. Overall, this decision making AI model developed in this application showed a lot of promise in terms of performance, accuracy, and cost-effectiveness.\n"
+}

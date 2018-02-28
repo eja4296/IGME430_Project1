@@ -1,13 +1,28 @@
+// Necessary modules
 const http = require('http');
 const url = require('url');
 const query = require('querystring');
 
+// Handlers for different file types
 const htmlHandler = require('./htmlResponses');
 const jsonHandler = require('./jsonResponses');
+const mediaHandler = require('./mediaResponses');
 
+// Port to run server on
 const port = process.env.PORT || process.env.NODE_PORT || 3000;
 
+// Object to hold main searches
+const urlStruct = {
+  '/': htmlHandler.getIndex,
+  '/style.css': htmlHandler.getCSS,
+  '/banner.png': mediaHandler.getImage,
+  '/getReviews': jsonHandler.getReviews,
+  '/getExample': jsonHandler.getExampleJSON,
+  notFound: jsonHandler.notFound,
+};
+
 // Handle Post requests
+// Add data based on user input from client
 const handlePost = (request, response, parsedUrl) => {
   if (parsedUrl.pathname === '/addReview') {
     const res = response;
@@ -34,6 +49,7 @@ const handlePost = (request, response, parsedUrl) => {
 };
 
 // Handle Head requests (no body)
+// Not real use in this application
 const handleHead = (request, response, parsedUrl) => {
   if (parsedUrl.pathname === '/getReviews') {
     jsonHandler.getReviewsMeta(request, response);
@@ -44,17 +60,16 @@ const handleHead = (request, response, parsedUrl) => {
 
 // Handle Get requests (body)
 const handleGet = (request, response, parsedUrl) => {
-  if (parsedUrl.pathname === '/' || parsedUrl.pathname === '/client.html') {
-    htmlHandler.getIndex(request, response);
-  } else if (parsedUrl.pathname === '/style.css') {
-    htmlHandler.getCSS(request, response);
-  } else if (parsedUrl.pathname === '/getReviews') {
-    jsonHandler.getReviews(request, response);
+  const params = query.parse(parsedUrl.query);
+  // Check url and any query parameters
+  if (urlStruct[parsedUrl.pathname]) {
+    urlStruct[parsedUrl.pathname](request, response, params);
   } else {
-    jsonHandler.notFound(request, response);
+    urlStruct.notFound(request, response, params);
   }
 };
 
+// When a request is made, find out type of request, handle it accordingly
 const onRequest = (request, response) => {
   const parsedUrl = url.parse(request.url);
   if (request.method === 'POST') {
@@ -66,6 +81,7 @@ const onRequest = (request, response) => {
   }
 };
 
+// Create server
 http.createServer(onRequest).listen(port);
 
 console.log(`Listening on 127.0.0.1: ${port}`);
